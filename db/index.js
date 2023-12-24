@@ -4,9 +4,9 @@ const mongoose = require("mongoose");
 const { KEYS } = require("../common/constants");
 
 const connectDB = async () => {
-  const HOST = KEYS.HOST;
-  const LOCAL = KEYS.DATABASE_URL_LOCAL;
-  const PROD = KEYS.DATABASE_URL_PROD;
+  const HOST = process.env.HOST;
+  const LOCAL = process.env.DATABASE_URL_LOCAL;
+  const PROD = process.env.DATABASE_URL_PROD;
   const db = HOST === "LOCAL" ? LOCAL : PROD;
   try {
     await mongoose.connect(db);
