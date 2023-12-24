@@ -1,6 +1,6 @@
 const bodyParser = require("body-parser");
 const express = require("express");
-const connectDB = require("./db");
+const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
 
@@ -27,7 +27,18 @@ app.use(function (req, res, next) {
 });
 
 // Database connection
-connectDB();
+const HOST = process.env.HOST;
+const LOCAL = process.env.DATABASE_URL_LOCAL;
+const PROD = process.env.DATABASE_URL_PROD;
+const db = HOST === "LOCAL" ? LOCAL : PROD;
+mongoose
+  .connect(db)
+  .then((e) => {
+    console.log("db connecetd");
+  })
+  .catch((e) => {
+    console.log(e.message);
+  });
 
 // Routes
 app.use("/api/auth", authRoutes.routes);

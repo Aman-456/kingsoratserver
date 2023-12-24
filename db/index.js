@@ -10,6 +10,7 @@ const connectDB = async () => {
   const LOCAL = process.env.DATABASE_URL_LOCAL;
   const PROD = process.env.DATABASE_URL_PROD;
   const db = HOST === "LOCAL" ? LOCAL : PROD;
+  console.log(db);
   try {
     await mongoose.connect(db);
     console.log("MongoDB Connected");
