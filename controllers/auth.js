@@ -49,13 +49,23 @@ exports.signup = async (req, res, next) => {
       name: newUser.username,
       link: LINK,
     };
-    await readHTMLFileForMail({
-      replacements,
-      subject: "Verify your email!",
-      success: "User Registered Successfully",
-      path: KEYS.EMAIL_VERIFICATION,
-      email,
-      res,
+    const otp = otpGenerator.generate(6, {
+      upperCase: false,
+      specialChars: false,
+      alphabets: false,
+    });
+
+    // await readHTMLFileForMail({
+    //   replacements,
+    //   subject: "Verify your email!",
+    //   success: "User Registered Successfully",
+    //   path: KEYS.EMAIL_VERIFICATION,
+    //   email,
+    //   res,
+    // });
+    return res.status(200).json({
+      type: "success",
+      result: "user created!",
     });
   } catch (error) {
     // Handle specific errors
@@ -80,9 +90,9 @@ exports.signin = async (req, res, next) => {
     }
 
     if (!user?.verify) {
-      return res
-        .status(401)
-        .json({ type: false, result: "Verify Your email first" });
+      // return res
+      //   .status(401)
+      //   .json({ type: false, result: "Verify Your email first" });
     }
 
     // Check if the password is correct
