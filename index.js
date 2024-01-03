@@ -5,6 +5,9 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 
 const authRoutes = require("./routes/auth");
+const userRoutes = require("./routes/user");
+const housesRoutes = require("./routes/house");
+const adminRoutes = require("./routes/Admin");
 
 dotenv.config();
 
@@ -42,6 +45,10 @@ mongoose
 
 // Routes
 app.use("/api/auth", authRoutes.routes);
+app.use("/api/user", userRoutes.routes);
+app.use("/api/house", housesRoutes.routes);
+app.use("/api/private/admin/auth", adminRoutes.routes);
+app.use("/api/private/admin/house", adminRoutes.routes);
 
 app.listen(process.env.PORT || 5000, () => {
   console.log("Server listening on port 5000");

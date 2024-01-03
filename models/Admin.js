@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema(
+const adminSchema = new mongoose.Schema(
   {
     username: {
       type: String,
@@ -20,10 +20,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "/assets/profiles/user.png",
     },
-    userCoins: {
-      type: Number,
-      default: 0,
-    },
 
     otp: {
       type: String,
@@ -40,6 +36,6 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);
+const Admin = mongoose.model("admin", adminSchema);
 
-module.exports = User;
+module.exports = Admin;
