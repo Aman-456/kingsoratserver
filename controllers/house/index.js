@@ -126,14 +126,17 @@ exports.AddupdateUserBetInHouse = async (req, res) => {
       }
     }
 
-    // Recalculate TotalBetAmount based on the sum of bet amounts of all users
-    houseToUpdate.TotalBetAmount = parseInt(
-      houseToUpdate.users.reduce(
-        (total, user) => total + parseInt(user.betAmount),
-        0
-      )
-    );
-    console.log({ houseToUpdate });
+    const houses = housesDocument?.houses || [];
+    // Assuming housesDocument is an array of houses
+    for (const houseToUpdate of houses) {
+      // Recalculate TotalBetAmount based on the sum of bet amounts of all users
+      houseToUpdate.TotalBetAmount = parseInt(
+        houseToUpdate.users?.reduce(
+          (total, user) => total + parseInt(user.betAmount),
+          0
+        )
+      );
+    }
     await housesDocument.save();
     const { password, createdAt, updatedAt, ...rest } = findUser;
 
