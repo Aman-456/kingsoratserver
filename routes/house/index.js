@@ -12,9 +12,9 @@ const {
 router.get("/time", verifyToken, getTime);
 
 // Get houses details
-router.get("/houses/details", verifyToken, getHousesDetails);
+router.get("/getdetails", verifyToken, getHousesDetails);
 
 // Add user to a house
-router.post("/houses/users", verifyToken, AddupdateUserBetInHouse);
+router.post("/users", verifyToken, AddupdateUserBetInHouse);
 
 exports.routes = router;

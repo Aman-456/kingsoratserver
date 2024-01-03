@@ -1,5 +1,6 @@
 // Import necessary models
 const Houses = require("../../models/House");
+const User = require("../../models/User");
 
 // Get current time information
 exports.getTime = async (req, res) => {
@@ -30,6 +31,11 @@ exports.getHousesDetails = async (req, res) => {
         type: "success",
         result: {},
       });
+    } else {
+      return res.json({
+        type: "success",
+        result: housesDocument,
+      });
     }
     // Recalculate TotalBetAmount based on the sum of bet amounts of all users
   } catch (error) {
@@ -41,21 +47,35 @@ exports.getHousesDetails = async (req, res) => {
 // Update user's bet in a house or remove user if betAmount is 0 or not provided
 exports.AddupdateUserBetInHouse = async (req, res) => {
   try {
-    const { houseId, userId, betAmount } = req.body;
-
+    const { houseId, betAmount } = req.body;
+    const userId = req.userId;
     if (!houseId || !userId) {
       return res
         .status(400)
         .json({ type: "failure", result: "Incomplete data provided" });
     }
 
-    let housesDocument = await Houses.findOne({});
+    const [housesDocument, findUser] = await Promise.all([
+      Houses.findOne({}),
+      User.findOne({ _id: userId }),
+    ]);
 
     if (!housesDocument) {
       return res
         .status(404)
         .json({ type: "failure", result: "Houses document not found" });
     }
+
+    if (!findUser || findUser.userCoins < parseInt(betAmount)) {
+      return res.status(404).json({
+        type: "failure",
+        result: "User not found or insufficient userCoins",
+      });
+    } else {
+      findUser.userCoins -= betAmount;
+      await findUser.save();
+    }
+    // Continue with the rest
 
     const houseToUpdate = housesDocument.houses.find(
       (house) => house._id.toString() === houseId
@@ -67,35 +87,49 @@ exports.AddupdateUserBetInHouse = async (req, res) => {
         .json({ type: "failure", result: "House not found" });
     }
 
-    const userToUpdate = houseToUpdate?.users?.find(
-      (user) => user._id.toString() === userId
-    );
+    if (houseToUpdate && houseToUpdate.users) {
+      const userIndex = houseToUpdate.users.findIndex(
+        (user) => user.user == userId
+      );
 
-    if (!userToUpdate) {
-      houseToUpdate?.users?.push({ _id: userId, betAmount });
-    } else {
-      if (betAmount !== undefined && betAmount !== null && betAmount !== 0) {
-        // Update user's betAmount if provided
-        userToUpdate.betAmount = betAmount;
+      if (userIndex === -1) {
+        // User not found, add a new user
+        houseToUpdate.users.push({
+          user: userId,
+          betAmount: parseInt(betAmount),
+        });
       } else {
-        // Remove the user if betAmount is 0
-        houseToUpdate.users = houseToUpdate.users.filter(
-          (user) => user._id.toString() !== userId
-        );
+        const userToUpdate = houseToUpdate.users[userIndex];
+
+        if (betAmount !== undefined && betAmount !== null && betAmount != 0) {
+          // Update user's betAmount if provided
+          userToUpdate.betAmount += parseInt(betAmount);
+        } else {
+          // Remove the user if betAmount is 0
+          houseToUpdate.users = houseToUpdate.users.filter(
+            ({ user }) => user != userId
+          );
+        }
       }
     }
 
     // Recalculate TotalBetAmount based on the sum of bet amounts of all users
-    houseToUpdate.TotalBetAmount = houseToUpdate.users.reduce(
-      (total, user) => total + user.betAmount,
-      0
+    houseToUpdate.TotalBetAmount = parseInt(
+      houseToUpdate.users.reduce(
+        (total, user) => total + parseInt(user.betAmount),
+        0
+      )
     );
-
+    console.log({ houseToUpdate });
     await housesDocument.save();
+    const { password, createdAt, updatedAt, ...rest } = findUser;
 
     return res.json({
       type: "success",
-      result: houseToUpdate,
+      result: {
+        houseDetails: housesDocument,
+        user: rest,
+      },
     });
   } catch (error) {
     console.error(error);
