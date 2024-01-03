@@ -66,6 +66,19 @@ exports.AddupdateUserBetInHouse = async (req, res) => {
         .json({ type: "failure", result: "Houses document not found" });
     }
 
+    // lock bets
+    const endDate = new Date(housesDocument.endDate);
+    const currentDate = new Date();
+    const timeRemainingInSeconds = Math.floor((endDate - currentDate) / 1000);
+
+    // Check if less than 300 seconds (5 minutes) are remaining
+    if (timeRemainingInSeconds < 30) {
+      return res.status(400).json({
+        type: "failure",
+        result: "Bets can't be added when less than 30 seconds are remaining",
+      });
+    }
+    // check user coins
     if (!findUser || findUser.userCoins < parseInt(betAmount)) {
       return res.status(404).json({
         type: "failure",
