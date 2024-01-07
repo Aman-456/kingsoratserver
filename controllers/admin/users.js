@@ -13,8 +13,7 @@ exports.togglestatus = async (req, res) => {
     const user = await User.findOne({ _id: req.body._id });
     user.hidden = user?.hidden ? false : true;
     await user.save();
-    const users = await getList();
-    return res.json({ type: "success", result: users });
+    return res.json({ type: "success", result: "user's status updated " });
   } catch (error) {
     res.status(500).json({ type: "failure", result: "Server Not Responding" });
   }
