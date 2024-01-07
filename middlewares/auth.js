@@ -15,14 +15,24 @@ exports.verifyToken = (req, res, next) => {
     token = token.split("Bearer ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
+    // Check if the token is expired
+    const currentTimestamp = Math.floor(Date.now() / 1000); // Convert milliseconds to seconds
+    if (decoded.exp && decoded.exp < currentTimestamp) {
+      return res
+        .status(401)
+        .json({ type: "failure", result: "Token has expired." });
+    }
+
     // Attach the decoded payload to the request for further use
     req.userId = decoded.userId;
+
     // Continue with the next middleware or route handler
     next();
   } catch (error) {
     return res.status(401).json({ type: "failure", result: "Invalid token." });
   }
 };
+
 exports.verifyAdmin = async (req, res, next) => {
   try {
     const admin = await Admin.findOne({ _id: req.userId });

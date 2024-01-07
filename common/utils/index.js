@@ -17,7 +17,7 @@ exports.trimStringFields = (data = {}) => {
 
 exports.generateAccessToken = (userId, type) => {
   return jwt.sign({ userId: userId }, process.env.JWT_SECRET_KEY, {
-    expiresIn: type === "game" ? "1d" : "1h",
+    expiresIn: type === "game" ? "1d" : "30s",
   });
 };
 

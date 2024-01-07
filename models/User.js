@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema(
     },
     expireTime: {
       type: String,
+      default: "",
+    },
+    hidden: {
+      type: Boolean,
       default: false,
     },
   },

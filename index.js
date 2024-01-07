@@ -47,8 +47,9 @@ mongoose
 app.use("/api/auth", authRoutes.routes);
 app.use("/api/user", userRoutes.routes);
 app.use("/api/house", housesRoutes.routes);
-app.use("/api/private/admin/auth", adminRoutes.routes);
-app.use("/api/private/admin/house", adminRoutes.routes);
+app.use("/api/private/admin/auth", adminRoutes.auth.routes);
+app.use("/api/private/admin/user", adminRoutes.user.routes);
+app.use("/api/private/admin/house", adminRoutes.house.routes);
 
 app.listen(process.env.PORT || 5000, () => {
   console.log("Server listening on port 5000");
